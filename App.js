@@ -1,7 +1,6 @@
-Ext.define('CustomApp', {
+Ext.define('TestCaseCopyApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
-    // items: { html: '<a href="https://help.rallydev.com/apps/2.0rc3/doc/">App SDK 2.0rc3 Docs</a>'},
     items: [
         {
             xtype: 'rallytextfield',
@@ -9,7 +8,6 @@ Ext.define('CustomApp', {
         }
     ],
 
-//?project=/project/403565371&projectScopeDown=true
     launch: function() {
         var sourceButton = Ext.create('Rally.ui.Button', {
             text: 'Choose Object',
@@ -23,10 +21,6 @@ Ext.define('CustomApp', {
             text: 'Choose User Story',
             disabled: true,
             listeners: {
-                // parentingmodechanged: function(parentingEnabled) {
-                //     debugger;
-                //     this.setDisabled(!parentingEnabled);
-                // },
                 click: this._launchDestUSChooser,
                 scope: this
             }
@@ -90,7 +84,6 @@ Ext.define('CustomApp', {
         var sourceTestCase = results[0];
         var record = Rally.data.util.Record.copyRecord(sourceTestCase);
 
-        // debugger;
         record.set('WorkProduct', null);
         record.set('TestFolder', null);
         record.set('c_SignoffApprovaloftestcase', null);
@@ -98,7 +91,6 @@ Ext.define('CustomApp', {
         record.set('c_TestCaseActual', null);
         record.set('c_TestCaseToDo', null);
 
-        // debugger;
         // record.set('Attachments', sourceTestCase.get('Attachments'));
         if (this.parentingEnabled) {
             if (this.selectedUSRecord) {
@@ -109,77 +101,28 @@ Ext.define('CustomApp', {
                 record.set('TestFolder', this.selectedTFRecord.data);
             }
         }
-        // debugger;
+
         record.save().then({
             success: function(newTestCase) {
                 console.log('Test copied: ', newTestCase.get('FormattedID'));
-                debugger;
+
                 results.splice(0, 1);
                 this._copyTestCases(results);
             },
             failure: function() {
-                console.log(arguments[0]);
                 debugger;
             },
             scope: this
         });
     },
-
-    _parentTestCases: function(newTestCases) {
-        // get parents, then add test cases as children
-        var testCaseStore = this.selectedUSRecord.getCollection('TestCases');
-
-        testCaseStore.load().then({
-            success: function(testCases) {
-                // var deferred = Ext.create('Deft.Deferred');
-                testCaseStore.add(newTestCases);
-                testCaseStore.sync({
-                    success: function() {
-                        this._displayResults(testCases);
-                        // deferred.resolve(copiedRecord);
-                        // Rally.environment.getMessageBus().publish(Rally.Message.objectUpdate, config.record, ['TestCases'], this);
-                    },
-                    failure: function() {
-                        debugger;
-                    },
-                    scope: this
-                });
-                // return deferred.promise;
-            },
-            failure: function() {
-                debugger;
-            },
-            scope: this
-        });
-
-        // then this._displayResults(testCases)
-    },
-
-    _displayResults: function(testCases) {
-        console.log(testCases);
-    },
-
-    // _copyTestCases: function() {
-    //     var testCaseStore = this.selectedRecord.getCollection('TestCases', { fetch: true });
-    //     // debugger;
-    //     // testCaseStore.fetch.push('Attachments');
-    //
-    //     testCaseStore.load().then({
-    //         success: this._createNewTestCases,
-    //         scope: this
-    //     });
-    // },
 
     _launchSourceArtifactChooser: function() {
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['userstory', 'testfolder'],
             autoShow: true,
-            // height: 400,
             title: 'Choose User Story or Test Folder',
             listeners: {
                 artifactChosen: function(selectedRecord) {
-                    // Ext.Msg.alert('Chooser', selectedRecord.get('Name') + ' was chosen');
-                    // console.log(selectedRecord.get('FormattedID'));
                     this.selectedRecord = selectedRecord;
 
                     var textfield = this.items.getAt(0);
@@ -197,12 +140,9 @@ Ext.define('CustomApp', {
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['userstory'],
             autoShow: true,
-            // height: 400,
             title: 'Choose User Story',
             listeners: {
                 artifactChosen: function(selectedRecord) {
-                    // Ext.Msg.alert('Chooser', selectedRecord.get('Name') + ' was chosen');
-                    // console.log(selectedRecord.get('FormattedID'));
                     this.selectedUSRecord = selectedRecord;
                 },
                 scope: this
@@ -214,12 +154,9 @@ Ext.define('CustomApp', {
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['testfolder'],
             autoShow: true,
-            // height: 400,
             title: 'Choose Test Folder',
             listeners: {
                 artifactChosen: function(selectedRecord) {
-                    // Ext.Msg.alert('Chooser', selectedRecord.get('Name') + ' was chosen');
-                    // console.log(selectedRecord.get('FormattedID'));
                     this.selectedTFRecord = selectedRecord;
                 },
                 scope: this
