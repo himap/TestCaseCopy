@@ -19,7 +19,6 @@ Ext.define('TestCaseCopyApp', {
 
         var destUSButton = Ext.create('Rally.ui.Button', {
             text: 'Choose User Story',
-            disabled: true,
             listeners: {
                 click: this._launchDestUSChooser,
                 scope: this
@@ -28,7 +27,6 @@ Ext.define('TestCaseCopyApp', {
 
         var destTFButton = Ext.create('Rally.ui.Button', {
             text: 'Choose Test Folder',
-            disabled: true,
             listeners: {
                 click: this._launchDestTFChooser,
                 scope: this
@@ -39,8 +37,8 @@ Ext.define('TestCaseCopyApp', {
             xtype: 'radiogroup',
             fieldLabel: 'Do you want to associate new parent with the copy',
             items: [
-                { boxLabel: 'Yes', name: 'rb', inputValue: '1' },
-                { boxLabel: 'No', name: 'rb', inputValue: '0', checked: true}
+                { boxLabel: 'Yes', name: 'rb', inputValue: '1', checked: true },
+                { boxLabel: 'No', name: 'rb', inputValue: '0'}
             ],
             listeners: {
                 change: function(component, newValue) {
@@ -82,10 +80,6 @@ Ext.define('TestCaseCopyApp', {
     _loadTestCasesForCopy: function() {
         this.selectedRecord.getCollection('TestCases').load().then({
             success: function(results) {
-                // this.newTestCasesStore = Ext.create('Rally.data.wsapi.Store', {
-                //     model: Ext.identityFn('TestCase'),
-                //     autoLoad: false
-                // });
                 this.newTestCases = [];
                 this._copyTestCases(results);
             },
@@ -110,8 +104,6 @@ Ext.define('TestCaseCopyApp', {
                 record.set('c_TestCaseActual', null);
                 record.set('c_TestCaseToDo', null);
 
-                debugger;
-                // record.set('Attachments', sourceTestCase.get('Attachments'));
                 if (this.parentingEnabled) {
                     if (this.selectedUSRecord) {
                         record.set('WorkProduct', this.selectedUSRecord.data);
@@ -125,7 +117,6 @@ Ext.define('TestCaseCopyApp', {
                 record.save().then({
                     success: function(newTestCase) {
                         console.log('Test copied: ', newTestCase.get('FormattedID'));
-                        // this.newTestCasesStore.add(newTestCase);
                         this.newTestCases.push(newTestCase);
 
                         results.splice(0, 1);
@@ -134,6 +125,7 @@ Ext.define('TestCaseCopyApp', {
                             this._copyTestCases(results);
                         } else {
                             this._displayNewTestCases();
+                            this._resetApp();
                         }
                     },
                     failure: function() {
@@ -151,8 +143,6 @@ Ext.define('TestCaseCopyApp', {
     },
 
     _displayNewTestCases: function() {
-        // this.newTestCases
-
         var grid = Ext.create('Rally.ui.grid.Grid', {
             columnCfgs: [
                 'FormattedID',
@@ -169,6 +159,18 @@ Ext.define('TestCaseCopyApp', {
         });
 
         this.add(grid);
+    },
+
+    _resetApp: function() {
+        this.items.getAt(0).setValue('');
+        this.items.getAt(2).setValue({ rb: '1' });
+        this.items.getAt(3).setValue('');
+        this.items.getAt(5).setValue('');
+        this.items.getAt(7).disable();
+
+        delete this.selectedRecord;
+        delete this.selectedUSRecord;
+        delete this.selectedTFRecord;
     },
 
     _launchSourceArtifactChooser: function() {
