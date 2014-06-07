@@ -71,6 +71,11 @@ Ext.define('TestCaseCopyApp', {
     _loadTestCasesForCopy: function() {
         this.selectedRecord.getCollection('TestCases').load().then({
             success: function(results) {
+                // this.newTestCasesStore = Ext.create('Rally.data.wsapi.Store', {
+                //     model: Ext.identityFn('TestCase'),
+                //     autoLoad: false
+                // });
+                this.newTestCases = [];
                 this._copyTestCases(results);
             },
             failure: function() {
@@ -82,38 +87,77 @@ Ext.define('TestCaseCopyApp', {
 
     _copyTestCases: function(results) {
         var sourceTestCase = results[0];
-        var record = Rally.data.util.Record.copyRecord(sourceTestCase);
 
-        record.set('WorkProduct', null);
-        record.set('TestFolder', null);
-        record.set('c_SignoffApprovaloftestcase', null);
-        record.set('c_SignoffReviewofinitialtestresult', null);
-        record.set('c_TestCaseActual', null);
-        record.set('c_TestCaseToDo', null);
+        sourceTestCase.getCollection('Attachments').load().then({
+            success: function(attachments) {
+                var record = Rally.data.util.Record.copyRecord(sourceTestCase);
 
-        // record.set('Attachments', sourceTestCase.get('Attachments'));
-        if (this.parentingEnabled) {
-            if (this.selectedUSRecord) {
-                record.set('WorkProduct', this.selectedUSRecord.data);
-            }
+                record.set('WorkProduct', null);
+                record.set('TestFolder', null);
+                record.set('c_SignoffApprovaloftestcase', null);
+                record.set('c_SignoffReviewofinitialtestresult', null);
+                record.set('c_TestCaseActual', null);
+                record.set('c_TestCaseToDo', null);
 
-            if (this.selectedTFRecord) {
-                record.set('TestFolder', this.selectedTFRecord.data);
-            }
-        }
+                debugger;
+                // record.set('Attachments', sourceTestCase.get('Attachments'));
+                if (this.parentingEnabled) {
+                    if (this.selectedUSRecord) {
+                        record.set('WorkProduct', this.selectedUSRecord.data);
+                    }
 
-        record.save().then({
-            success: function(newTestCase) {
-                console.log('Test copied: ', newTestCase.get('FormattedID'));
+                    if (this.selectedTFRecord) {
+                        record.set('TestFolder', this.selectedTFRecord.data);
+                    }
+                }
 
-                results.splice(0, 1);
-                this._copyTestCases(results);
+                record.save().then({
+                    success: function(newTestCase) {
+                        console.log('Test copied: ', newTestCase.get('FormattedID'));
+                        // this.newTestCasesStore.add(newTestCase);
+                        this.newTestCases.push(newTestCase);
+
+                        results.splice(0, 1);
+
+                        if (results.length) {
+                            this._copyTestCases(results);
+                        } else {
+                            this._displayNewTestCases();
+                        }
+                    },
+                    failure: function() {
+                        debugger;
+                    },
+                    scope: this
+                });
             },
             failure: function() {
                 debugger;
             },
             scope: this
         });
+
+    },
+
+    _displayNewTestCases: function() {
+        // this.newTestCases
+
+        var grid = Ext.create('Rally.ui.grid.Grid', {
+            columnCfgs: [
+                'FormattedID',
+                'Name'
+            ],
+            storeConfig: {
+                model: 'TestCase',
+                autoLoad: false
+            }
+        });
+
+        _.each(this.newTestCases, function(testCase) {
+            grid.store.add(testCase);
+        });
+
+        this.add(grid);
     },
 
     _launchSourceArtifactChooser: function() {
