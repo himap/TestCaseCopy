@@ -62,7 +62,7 @@ Ext.define('CustomApp', {
         var copyButton = Ext.create('Rally.ui.Button', {
             text: 'Copy',
             listeners: {
-                click: this._copyTestCase,
+                click: this._copyTestCases,
                 scope: this
             }
         });
@@ -74,47 +74,103 @@ Ext.define('CustomApp', {
         this.add(copyButton);
     },
 
-    _copyTestCase: function () {
+    _createNewTestCases: function(results) {
+        var createPromises = [];
+
+        for (var i = 0; i < results.length; i++) {
+            var sourceTestCase = results[i];
+            var record = Rally.data.util.Record.copyRecord(sourceTestCase);
+
+            // debugger;
+            record.set('WorkProduct', null);
+            record.set('TestFolder', null);
+            record.set('c_SignoffApprovaloftestcase', null);
+            record.set('c_SignoffReviewofinitialtestresult', null);
+            record.set('c_TestCaseActual', null);
+            record.set('c_TestCaseToDo', null);
+
+            // debugger;
+            // record.set('Attachments', sourceTestCase.get('Attachments'));
+            // if (this.parentingEnabled) {
+            //     if (this.selectedUSRecord) {
+            //         record.set('WorkProduct', this.selectedUSRecord.data);
+            //     }
+            //
+            //     if (this.selectedTFRecord) {
+            //         record.set('TestFolder', this.selectedTFRecord.data);
+            //     }
+            // }
+            // debugger;
+            // record.save().then({
+            //     success: function(newTestCase) {
+            //         console.log('Test copied: ', newTestCase.get('FormattedID'));
+            //     },
+            //     failure: function() {
+            //         console.log(arguments[0]);
+            //         debugger;
+            //     }
+            // });
+
+            createPromises.push(record.save());
+        }
+
+        return Deft.Promise.all(createPromises).then({
+            success: function(testCases) {
+                if (this.parentingEnabled) {
+                    this._parentTestCases(testCases);
+                } else {
+                    this._displayResults(testCases);
+                }
+            },
+            failure: function() {
+                debugger;
+            },
+            scope: this
+        });
+
+    },
+
+    _parentTestCases: function(newTestCases) {
+        // get parents, then add test cases as children
+        var testCaseStore = this.selectedUSRecord.getCollection('TestCases');
+
+        testCaseStore.load().then({
+            success: function(testCases) {
+                // var deferred = Ext.create('Deft.Deferred');
+                testCaseStore.add(newTestCases);
+                testCaseStore.sync({
+                    success: function() {
+                        this._displayResults(testCases);
+                        // deferred.resolve(copiedRecord);
+                        // Rally.environment.getMessageBus().publish(Rally.Message.objectUpdate, config.record, ['TestCases'], this);
+                    },
+                    failure: function() {
+                        debugger;
+                    },
+                    scope: this
+                });
+                // return deferred.promise;
+            },
+            failure: function() {
+                debugger;
+            },
+            scope: this
+        });
+
+        // then this._displayResults(testCases)
+    },
+
+    _displayResults: function(testCases) {
+        console.log(testCases);
+    },
+
+    _copyTestCases: function() {
         var testCaseStore = this.selectedRecord.getCollection('TestCases', { fetch: true });
         // debugger;
         // testCaseStore.fetch.push('Attachments');
 
         testCaseStore.load().then({
-            success: function(results) {
-                for (var i = 0; i < results.length; i++) {
-
-
-                    var sourceTestCase = results[i];
-                    var record = Rally.data.util.Record.copyRecord(sourceTestCase);
-
-                    // debugger;
-                    record.set('WorkProduct', null);
-                    record.set('TestFolder', null);
-                    record.set('c_SignoffApprovaloftestcase', null);
-                    record.set('c_SignoffReviewofinitialtestresult', null);
-                    record.set('c_TestCaseActual', null);
-                    record.set('c_TestCaseToDo', null);
-
-                    // debugger;
-                    // record.set('Attachments', sourceTestCase.get('Attachments'));
-                    if (this.parentingEnabled) {
-                        if (this.selectedUSRecord) {
-                            record.set('WorkProduct', this.selectedUSRecord.data);
-                        }
-
-                        if (this.selectedTFRecord) {
-                            record.set('TestFolder', this.selectedTFRecord.data);
-                        }
-                    }
-
-                    record.save().then({
-                        success: function(newTestCase) {
-                            console.log('Test copied: ', newTestCase.get('FormattedID'));
-                        }
-                    });
-                }
-
-            },
+            success: this._createNewTestCases,
             scope: this
         });
     },
