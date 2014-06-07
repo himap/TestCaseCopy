@@ -6,7 +6,7 @@ Ext.define('CustomApp', {
         xtype: 'rallytextfield',
         fieldLabel: 'Select the object to copy test cases from:'
     }],
-    
+
     launch: function() {
         var button = Ext.create('Rally.ui.Button', {
             text: 'Choose Object',
@@ -15,26 +15,43 @@ Ext.define('CustomApp', {
                 scope: this
             }
         });
-        
+
         var copybutton = Ext.create('Rally.ui.Button', {
             text: 'Copy',
             listeners: {
                 click: this._copyTestCase,
                 scope: this
             }
-        });    
-        
+        });
+
         this.add(button);
         this.add(copybutton);
     },
-    
+
     _copyTestCase: function () {
-        var rec = Rally.data.util.Record.copyRecord(this.selectedRecord);
+      this.selectedRecord.getCollection('TestCases').load().then({
+          success: function(results) {
+              var rec = Rally.data.util.Record.copyRecord(results[0]);
+              rec.set('WorkProduct',null);
+              rec.set('c_SignoffApprovaloftestcase',null);
+              rec.set('c_SignoffReviewofinitialtestresult',null);
+              rec.set('c_TestCaseActual',null);
+              rec.set('c_TestCaseToDo',null);
+              rec.save().then({
+                success: function(newTestCase) {
+                  Ext.Msg.alert('Testcopied', newTestCase.get('FormattedID'));
+                }
+              });
+          }
+      });
+
+
+        // var rec = Rally.data.util.Record.copyRecord(this.selectedRecord);
     },
-    
+
     _launchChooser: function() {
         console.log("My first App");
-        
+
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['userstory', 'testfolder'],
             autoShow: true,
@@ -54,9 +71,9 @@ Ext.define('CustomApp', {
                 fetch: ['TestCases']
             }
         });
-        
+
         // Ext.create('Rally.ui.')
-        
+
         // Ext.create('Rally.ui.dialog.SolrArtifactChooserDialog', {
         //     artifactTypes: ['userstory', 'testfolder'],
         //     autoShow: true,
