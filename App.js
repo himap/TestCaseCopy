@@ -55,6 +55,7 @@ Ext.define('TestCaseCopyApp', {
 
         var copyButton = Ext.create('Rally.ui.Button', {
             text: 'Copy',
+            disabled: true,
             listeners: {
                 click: this._loadTestCasesForCopy,
                 scope: this
@@ -181,6 +182,9 @@ Ext.define('TestCaseCopyApp', {
 
                     var textfield = this.items.getAt(0);
                     textfield.setValue(selectedRecord.get('FormattedID'));
+
+                    var copyButton = this.items.getAt(7);
+                    copyButton.enable();
                 },
                 scope: this
             },
