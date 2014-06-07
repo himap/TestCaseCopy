@@ -61,9 +61,19 @@ Ext.define('TestCaseCopyApp', {
             }
         });
 
+        var destinationUSTextField = Ext.create('Rally.ui.TextField', {
+            fieldLabel: 'User Story to Copy to:'
+        });
+
+        var destinationTFTextField = Ext.create('Rally.ui.TextField', {
+            fieldLabel: 'Test Folder to Copy to:'
+        });
+
         this.add(sourceButton);
         this.add(radioButton);
+        this.add(destinationUSTextField);
         this.add(destUSButton);
+        this.add(destinationTFTextField);
         this.add(destTFButton);
         this.add(copyButton);
     },
@@ -188,6 +198,9 @@ Ext.define('TestCaseCopyApp', {
             listeners: {
                 artifactChosen: function(selectedRecord) {
                     this.selectedUSRecord = selectedRecord;
+
+                    var textfield = this.items.getAt(3);
+                    textfield.setValue(selectedRecord.get('FormattedID'));
                 },
                 scope: this
             }
@@ -202,6 +215,9 @@ Ext.define('TestCaseCopyApp', {
             listeners: {
                 artifactChosen: function(selectedRecord) {
                     this.selectedTFRecord = selectedRecord;
+
+                    var textfield = this.items.getAt(5);
+                    textfield.setValue(selectedRecord.get('FormattedID'));
                 },
                 scope: this
             }
