@@ -1,3 +1,14 @@
 .app {
      /* Add app styles here */
 }
+
+
+.app a[role=button] {
+    margin-top: -8px;
+    margin-left: 10px;
+}
+
+.app input.x-form-cb,
+.app label.x-form-cb-label {
+    margin-left: 5px;
+}

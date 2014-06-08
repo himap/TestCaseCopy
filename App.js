@@ -1,6 +1,11 @@
 Ext.define('TestCaseCopyApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
+    width: 400,
+    layout: {
+        type: 'table',
+        columns: 2
+    },
     items: [
         {
             xtype: 'rallytextfield',
@@ -36,6 +41,7 @@ Ext.define('TestCaseCopyApp', {
         var radioButton = Ext.create('Ext.form.RadioGroup', {
             xtype: 'radiogroup',
             fieldLabel: 'Do you want to associate new parent with the copy',
+            colspan: 2,
             items: [
                 { boxLabel: 'Yes', name: 'rb', inputValue: '1', checked: true },
                 { boxLabel: 'No', name: 'rb', inputValue: '0'}
@@ -54,6 +60,9 @@ Ext.define('TestCaseCopyApp', {
         var copyButton = Ext.create('Rally.ui.Button', {
             text: 'Copy',
             disabled: true,
+            style: {
+                'margin-top': '5px'
+            },
             listeners: {
                 click: this._loadTestCasesForCopy,
                 scope: this
