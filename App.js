@@ -94,7 +94,7 @@ Ext.define('TestCaseCopyApp', {
                 this._copyTestCases(results);
             },
             failure: function() {
-                debugger;
+                console.log('Error has occured');
             },
             scope: this
         });
@@ -139,13 +139,13 @@ Ext.define('TestCaseCopyApp', {
                         }
                     },
                     failure: function() {
-                        debugger;
+                        console.log('Error has occured');
                     },
                     scope: this
                 });
             },
             failure: function() {
-                debugger;
+                console.log('Error has occured');
             },
             scope: this
         });
@@ -158,6 +158,7 @@ Ext.define('TestCaseCopyApp', {
                 'FormattedID',
                 'Name'
             ],
+            showRowActionsColumn: false,
             colspan: 2,
             storeConfig: {
                 model: 'TestCase',

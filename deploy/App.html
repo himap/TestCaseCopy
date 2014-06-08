@@ -7,7 +7,7 @@
 
     <script type="text/javascript">
         Rally.onReady(function () {
-                Ext.define("CustomApp",{extend:"Rally.app.App",componentCls:"app",items:{html:'<a href="https://help.rallydev.com/apps/2.0rc3/doc/">App SDK 2.0rc3 Docs</a>'},launch:function(){}});
+                Ext.define("TestCaseCopyApp",{extend:"Rally.app.App",componentCls:"app",width:400,layout:{type:"table",columns:2},items:[{xtype:"rallytextfield",fieldLabel:"Select the object to copy test cases from:"}],launch:function(){var sourceButton=Ext.create("Rally.ui.Button",{text:"Choose Object",listeners:{click:this._launchSourceArtifactChooser,scope:this}}),destUSButton=Ext.create("Rally.ui.Button",{text:"Choose User Story",listeners:{click:this._launchDestUSChooser,scope:this}}),destTFButton=Ext.create("Rally.ui.Button",{text:"Choose Test Folder",listeners:{click:this._launchDestTFChooser,scope:this}}),radioButton=Ext.create("Ext.form.RadioGroup",{xtype:"radiogroup",fieldLabel:"Do you want to associate new parent with the copy",colspan:2,items:[{boxLabel:"Yes",name:"rb",inputValue:"1",checked:!0},{boxLabel:"No",name:"rb",inputValue:"0"}],listeners:{change:function(component,newValue){this.parentingEnabled="1"===newValue.rb,destUSButton.setDisabled(!this.parentingEnabled),destTFButton.setDisabled(!this.parentingEnabled)},scope:this}}),copyButton=Ext.create("Rally.ui.Button",{text:"Copy",colspan:2,disabled:!0,style:{"margin-top":"5px"},listeners:{click:this._loadTestCasesForCopy,scope:this}}),destinationUSTextField=Ext.create("Rally.ui.TextField",{fieldLabel:"User Story to Copy to:"}),destinationTFTextField=Ext.create("Rally.ui.TextField",{fieldLabel:"Test Folder to Copy to:"});this.add(sourceButton),this.add(radioButton),this.add(destinationUSTextField),this.add(destUSButton),this.add(destinationTFTextField),this.add(destTFButton),this.add(copyButton)},_loadTestCasesForCopy:function(){this.selectedRecord.getCollection("TestCases").load().then({success:function(results){this.newTestCases=[],this._copyTestCases(results)},failure:function(){console.log("Error has occured")},scope:this})},_copyTestCases:function(results){var sourceTestCase=results[0];sourceTestCase.getCollection("Attachments").load().then({success:function(attachments){var record=Rally.data.util.Record.copyRecord(sourceTestCase);record.set("WorkProduct",null),record.set("TestFolder",null),record.set("c_SignoffApprovaloftestcase",null),record.set("c_SignoffReviewofinitialtestresult",null),record.set("c_TestCaseActual",null),record.set("c_TestCaseToDo",null),this.parentingEnabled&&(this.selectedUSRecord&&record.set("WorkProduct",this.selectedUSRecord.data),this.selectedTFRecord&&record.set("TestFolder",this.selectedTFRecord.data)),record.save().then({success:function(newTestCase){console.log("Test copied: ",newTestCase.get("FormattedID")),this.newTestCases.push(newTestCase),results.splice(0,1),results.length?this._copyTestCases(results):(this._displayNewTestCases(),this._resetApp())},failure:function(){console.log("Error has occured")},scope:this})},failure:function(){console.log("Error has occured")},scope:this})},_displayNewTestCases:function(){var grid=Ext.create("Rally.ui.grid.Grid",{columnCfgs:["FormattedID","Name"],colspan:2,storeConfig:{model:"TestCase",autoLoad:!1}});_.each(this.newTestCases,function(testCase){grid.store.add(testCase)}),this.grid=grid,this.add(grid)},_resetApp:function(){this.items.getAt(0).setValue(""),this.items.getAt(2).setValue({rb:"1"}),this.items.getAt(3).setValue(""),this.items.getAt(5).setValue(""),this.items.getAt(7).disable(),delete this.selectedRecord,delete this.selectedUSRecord,delete this.selectedTFRecord},_launchSourceArtifactChooser:function(){Ext.create("Rally.ui.dialog.ChooserDialog",{artifactTypes:["userstory","testfolder"],autoShow:!0,title:"Choose User Story or Test Folder",listeners:{artifactChosen:function(selectedRecord){this.selectedRecord=selectedRecord;var textfield=this.items.getAt(0);textfield.setValue(selectedRecord.get("FormattedID"));var copyButton=this.items.getAt(7);copyButton.enable(),this.remove(this.grid)},scope:this},storeConfig:{fetch:["TestCases"]}})},_launchDestUSChooser:function(){Ext.create("Rally.ui.dialog.ChooserDialog",{artifactTypes:["userstory"],autoShow:!0,title:"Choose User Story",listeners:{artifactChosen:function(selectedRecord){this.selectedUSRecord=selectedRecord;var textfield=this.items.getAt(3);textfield.setValue(selectedRecord.get("FormattedID"))},scope:this}})},_launchDestTFChooser:function(){Ext.create("Rally.ui.dialog.ChooserDialog",{artifactTypes:["testfolder"],autoShow:!0,title:"Choose Test Folder",listeners:{artifactChosen:function(selectedRecord){this.selectedTFRecord=selectedRecord;var textfield=this.items.getAt(5);textfield.setValue(selectedRecord.get("FormattedID"))},scope:this}})}});
 
             Rally.launchApp('CustomApp', {
                 name:"testcase_copy",
@@ -21,6 +21,17 @@
     <style type="text/css">
         .app {
      /* Add app styles here */
+}
+
+
+.app a[role=button] {
+    margin-top: -8px;
+    margin-left: 10px;
+}
+
+.app input.x-form-cb,
+.app label.x-form-cb-label {
+    margin-left: 5px;
 }
 
     </style>
