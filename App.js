@@ -6,17 +6,19 @@ Ext.define('TestCaseCopyApp', {
         type: 'table',
         columns: 2
     },
-    items: [
-        {
-            xtype: 'rallytextfield',
-            fieldLabel: 'Select the object to copy test cases from:',
-            readOnly: true
-        }
-    ],
 
     launch: function() {
+        var sourceTextField = Ext.create('Rally.ui.TextField', {
+            fieldLabel: 'Select the artifact to copy test cases from:',
+            readOnly: true,
+            listeners: {
+                focus: this._launchSourceArtifactChooser,
+                scope: this
+            }
+        });
+
         var sourceButton = Ext.create('Rally.ui.Button', {
-            text: 'Choose Object',
+            text: 'Choose source',
             listeners: {
                 click: this._launchSourceArtifactChooser,
                 scope: this
@@ -73,14 +75,23 @@ Ext.define('TestCaseCopyApp', {
 
         var destinationUSTextField = Ext.create('Rally.ui.TextField', {
             fieldLabel: 'User Story to Copy to:',
-            readOnly: true
+            readOnly: true,
+            listeners: {
+                focus: this._launchDestUSChooser,
+                scope: this
+            }
         });
 
         var destinationTFTextField = Ext.create('Rally.ui.TextField', {
             fieldLabel: 'Test Folder to Copy to:',
-            readOnly: true
+            readOnly: true,
+            listeners: {
+                focus: this._launchDestTFChooser,
+                scope: this
+            }
         });
 
+        this.add(sourceTextField);
         this.add(sourceButton);
         this.add(radioButton);
         this.add(destinationUSTextField);
@@ -214,6 +225,9 @@ Ext.define('TestCaseCopyApp', {
     },
 
     _launchDestUSChooser: function() {
+        if (!this.parentingEnabled) {
+            return;
+        }
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['userstory'],
             autoShow: true,
@@ -231,6 +245,9 @@ Ext.define('TestCaseCopyApp', {
     },
 
     _launchDestTFChooser: function() {
+        if (!this.parentingEnabled) {
+            return;
+        }
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['testfolder'],
             autoShow: true,

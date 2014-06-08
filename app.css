@@ -12,3 +12,8 @@
 .app label.x-form-cb-label {
     margin-left: 5px;
 }
+
+.app .rally-textfield-component .x-form-text {
+    background-color: #c6c6c6;
+    border-color: none;
+}
