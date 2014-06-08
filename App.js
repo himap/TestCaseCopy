@@ -9,7 +9,8 @@ Ext.define('TestCaseCopyApp', {
     items: [
         {
             xtype: 'rallytextfield',
-            fieldLabel: 'Select the object to copy test cases from:'
+            fieldLabel: 'Select the object to copy test cases from:',
+            readOnly: true
         }
     ],
 
@@ -71,11 +72,13 @@ Ext.define('TestCaseCopyApp', {
         });
 
         var destinationUSTextField = Ext.create('Rally.ui.TextField', {
-            fieldLabel: 'User Story to Copy to:'
+            fieldLabel: 'User Story to Copy to:',
+            readOnly: true
         });
 
         var destinationTFTextField = Ext.create('Rally.ui.TextField', {
-            fieldLabel: 'Test Folder to Copy to:'
+            fieldLabel: 'Test Folder to Copy to:',
+            readOnly: true
         });
 
         this.add(sourceButton);
