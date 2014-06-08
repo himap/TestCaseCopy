@@ -59,6 +59,7 @@ Ext.define('TestCaseCopyApp', {
 
         var copyButton = Ext.create('Rally.ui.Button', {
             text: 'Copy',
+            colspan: 2,
             disabled: true,
             style: {
                 'margin-top': '5px'
@@ -157,6 +158,7 @@ Ext.define('TestCaseCopyApp', {
                 'FormattedID',
                 'Name'
             ],
+            colspan: 2,
             storeConfig: {
                 model: 'TestCase',
                 autoLoad: false
@@ -167,6 +169,7 @@ Ext.define('TestCaseCopyApp', {
             grid.store.add(testCase);
         });
 
+        this.grid = grid;
         this.add(grid);
     },
 
@@ -196,6 +199,7 @@ Ext.define('TestCaseCopyApp', {
 
                     var copyButton = this.items.getAt(7);
                     copyButton.enable();
+                    this.remove(this.grid);
                 },
                 scope: this
             },
