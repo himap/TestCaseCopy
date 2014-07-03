@@ -15,16 +15,19 @@
         type: 'table',
         columns: 2
     },
-    items: [
-        {
-            xtype: 'rallytextfield',
-            fieldLabel: 'Select the object to copy test cases from:'
-        }
-    ],
 
     launch: function() {
+        var sourceTextField = Ext.create('Rally.ui.TextField', {
+            fieldLabel: 'Select the artifact to copy test cases from:',
+            readOnly: true,
+            listeners: {
+                focus: this._launchSourceArtifactChooser,
+                scope: this
+            }
+        });
+
         var sourceButton = Ext.create('Rally.ui.Button', {
-            text: 'Choose Object',
+            text: 'Choose source',
             listeners: {
                 click: this._launchSourceArtifactChooser,
                 scope: this
@@ -80,13 +83,24 @@
         });
 
         var destinationUSTextField = Ext.create('Rally.ui.TextField', {
-            fieldLabel: 'User Story to Copy to:'
+            fieldLabel: 'User Story to Copy to:',
+            readOnly: true,
+            listeners: {
+                focus: this._launchDestUSChooser,
+                scope: this
+            }
         });
 
         var destinationTFTextField = Ext.create('Rally.ui.TextField', {
-            fieldLabel: 'Test Folder to Copy to:'
+            fieldLabel: 'Test Folder to Copy to:',
+            readOnly: true,
+            listeners: {
+                focus: this._launchDestTFChooser,
+                scope: this
+            }
         });
 
+        this.add(sourceTextField);
         this.add(sourceButton);
         this.add(radioButton);
         this.add(destinationUSTextField);
@@ -199,9 +213,6 @@
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['userstory', 'testfolder'],
             autoShow: true,
-            width: 300,
-            height:400,
-            gridConfig: {height: 350},
             title: 'Choose User Story or Test Folder',
             listeners: {
                 artifactChosen: function(selectedRecord) {
@@ -223,6 +234,9 @@
     },
 
     _launchDestUSChooser: function() {
+        if (!this.parentingEnabled) {
+            return;
+        }
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['userstory'],
             autoShow: true,
@@ -240,6 +254,9 @@
     },
 
     _launchDestTFChooser: function() {
+        if (!this.parentingEnabled) {
+            return;
+        }
         Ext.create('Rally.ui.dialog.ChooserDialog', {
             artifactTypes: ['testfolder'],
             autoShow: true,
@@ -258,7 +275,7 @@
 });
 
 
-            Rally.launchApp('TestCaseCopyApp', {
+            Rally.launchApp('CustomApp', {
                 name:"testcase_copy",
 	            parentRepos:""
             });
@@ -281,6 +298,11 @@
 .app input.x-form-cb,
 .app label.x-form-cb-label {
     margin-left: 5px;
+}
+
+.app .rally-textfield-component .x-form-text {
+    background-color: #c6c6c6;
+    border-color: none;
 }
 
     </style>

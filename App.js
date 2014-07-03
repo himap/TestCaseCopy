@@ -102,6 +102,7 @@ Ext.define('TestCaseCopyApp', {
     },
 
     _loadTestCasesForCopy: function() {
+        this.setLoading(true);
         this.selectedRecord.getCollection('TestCases').load().then({
             success: function(results) {
                 this.newTestCases = [];
@@ -186,6 +187,7 @@ Ext.define('TestCaseCopyApp', {
 
         this.grid = grid;
         this.add(grid);
+        this.setLoading(false);
     },
 
     _resetApp: function() {
